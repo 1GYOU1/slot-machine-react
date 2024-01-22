@@ -112,7 +112,7 @@ body{background:#000;}
     }
   }
 
-  /* mobille */
+/* mobille */
 @media screen and (max-width:500px){
     .game_zone .slot_area .slot_mask{top:-6px;left:-7px;width:104%;}
     .game_zone .slot_box li{height:68px;}
@@ -128,5 +128,4 @@ body{background:#000;}
     .result_zone .btn_area{margin-top:15px;}
     .game_zone .handle.on{transform-origin:bottom;transform:rotate(-15deg);}
     .game_zone .handle:hover img{transform:unset;}
-
 }

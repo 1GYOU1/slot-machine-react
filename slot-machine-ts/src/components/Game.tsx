@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import slotBoxImg from '../img/slot_box.png';
 import handleImg from '../img/handle.png';
 import slotArrowImg from '../img/slot_arrow.png';
@@ -53,24 +53,23 @@ const Game = () => {
     const gameZoneRef = useRef<HTMLDivElement>(null);
     const arrowRef = useRef<HTMLDivElement>(null);
     const slotHandleRef = useRef<HTMLButtonElement>(null);
-
     const priviewDiv = document.querySelectorAll('.game_zone .preview > div') as NodeListOf<HTMLDivElement>;
 
     // result_zone
     const resultZoneRef = useRef<HTMLDivElement>(null);
-    
+
     const resultView = document.querySelectorAll('.result_zone .result_view > div') as NodeListOf<HTMLDivElement>;;
 
     const gameRoundRef = useRef<HTMLDivElement>(null);
 
-    let roundCount = 1;
+    const [roundCount, setRoundCount] = useState(1);
 
     // 화살표 초기값
-    let buttonAct = true;
-    let Arrdirection = 'right';
-    let persent = 0;
-    let speed = 7;
-    let resultPersent = 0;// 화살표 결과 위치 값 (%)
+    const [buttonAct, setButtonAct] = useState(false);
+    const [arrDirection, setArrDirection] = useState('right');
+    const [persent, setPersent] = useState(0);
+    const [speed, setSpeed] = useState(1);
+    const [resultPersent, setResultPersent] = useState(0);// 화살표 결과 위치 값 (%)
     let animationId: number | undefined;// 화살표 애니메이션
 
     // 화살표 결과
@@ -83,7 +82,8 @@ const Game = () => {
         }
         if(gameZoneRef.current){
             gameZoneRef.current.classList.add('on');
-            moveArr();
+            // moveArr();
+            setButtonAct(true);
         }
     }
     // 게임 방법 팝업 열기
@@ -98,47 +98,55 @@ const Game = () => {
             howToPopUpRef.current.classList.remove('on');
         }
     }
-
-    // 화살표
-    const moveArr = () => {
-        // 화살표 방향
-        if(Arrdirection == 'right'){
-            if(persent >= 100){
-                Arrdirection = 'left';
-            }else{
-                persent += speed;
-            }
-        }else{
-            if(persent <= 0){
-                Arrdirection = 'right';
-            }else{
-                persent -= speed;
-            }
-        }
-        if(arrowRef.current){
+    
+    // 화살표 위치값 변경
+    useEffect(() => {
+        setResultPersent(persent);//결과 위치값 전달
+        animationId = requestAnimationFrame(moveArr);
+        if (arrowRef.current) {
             arrowRef.current.style.left = `${persent}%`;
         }
-        resultPersent = persent;// 결과 위치 값 전달
-        console.log(persent)
-        //프레임을 스케줄링
-        animationId = requestAnimationFrame(moveArr);
+    }, [persent, buttonAct, arrDirection]);
+
+    // round class 변경
+    useEffect(() => {
+        roundChange();
+        console.log('roundCount', roundCount)
+    }, [roundCount])
+
+    const moveArr = () => {
+        if (buttonAct) {
+            if (arrDirection === 'right') {
+                if (persent >= 100) {
+                    setArrDirection('left');
+                } else {
+                    setPersent((prev) => prev + speed);
+                }
+            } else {
+                if (persent <= 0) {
+                    setArrDirection('right');
+                } else {
+                    setPersent((prev) => prev - speed);
+                }
+            }
+        }
+    };
+
+    const roundChange = () => {
+        if (gameRoundRef.current) {
+            gameRoundRef.current.className = 'round_' + roundCount.toString();
+        }
     }
 
     const stopArrowBtnEvent = () => {
         if(buttonAct){
             stopSlot();// 슬롯 멈추기
             if(slotHandleRef.current){
-                slotHandleRef.current.classList.add('on');// 핸들 애니메이션 추가
+                slotHandleRef.current.classList.add('on');// 모바일 핸들 애니메이션 추가
             }
             if(roundCount < 5){
-                setTimeout(() => {
-                    // round_ 클래스 카운트 변경
-                    let currentClass = 'round_' + roundCount.toString();
-                    let currentRoundNumber = parseInt(currentClass.split('_')[1]);// 현재 라운드 번호 추출
-                    roundCount = currentRoundNumber + 1;// 다음 라운드 번호 계산 및 클래스 업데이트
-                    if(gameRoundRef.current){
-                        gameRoundRef.current.classList.replace(currentClass, 'round_' + roundCount.toString())
-                    }
+                setTimeout(() => {// round_ 클래스 카운트 변경
+                    setRoundCount((prev) => prev + 1);
 
                     reStartSlot();// 슬롯 다시 시작
                     if(slotHandleRef.current){
@@ -149,7 +157,7 @@ const Game = () => {
                 if(animationId !== undefined){
                     cancelAnimationFrame(animationId);
                 }
-                buttonAct = false;
+                setButtonAct(false);
                 setTimeout(() => {// 결과 화면 show
                     if(gameZoneRef.current){
                         gameZoneRef.current.classList.remove('on');    
@@ -165,10 +173,10 @@ const Game = () => {
 
     // 화살표 멈추기
     const stopSlot = () => {
+        setButtonAct(false);
         if(animationId !== undefined){
             cancelAnimationFrame(animationId);
         }
-        buttonAct = false;
 
         // 결과 값 배열로 저장
         if(resultPersent < 20){
@@ -183,35 +191,35 @@ const Game = () => {
             resultArr.push(5);
         }
 
-        // 선택한 요소의 스타일 가져오기
-        let choiceElement = document.querySelector(`.game_zone .round_${roundCount} .slot_box li:nth-of-type(${resultArr[roundCount-1]})`);
-        if (choiceElement) {
-            let choiceStyle = getComputedStyle(choiceElement).backgroundImage;
+    //     // 선택한 요소의 스타일 가져오기
+    //     let choiceElement = document.querySelector(`.game_zone .round_${roundCount} .slot_box li:nth-of-type(${resultArr[roundCount-1]})`);
+    //     if (choiceElement) {
+    //         let choiceStyle = getComputedStyle(choiceElement).backgroundImage;
 
-            // 결과 priview show
-            priviewDiv.forEach((e, i)=>{
-                if(resultArr.length == i+1){
-                    priviewDiv[i].style.display = 'block';
-                    priviewDiv[i].style.backgroundImage = choiceStyle;// 게임 진행 preview 화면에 background-image 넣어주기 
-                    resultView[i].style.backgroundImage = choiceStyle;// 결과 화면에도 background-image 넣어주기 
-                }
-            });
-        }else{
-            // choiceElement가 null인 경우
-            console.error("stopSlot() choiceElement not found !");
-        }
+    //         // 결과 priview show
+    //         priviewDiv.forEach((e, i)=>{
+    //             if(resultArr.length == i+1){
+    //                 priviewDiv[i].style.display = 'block';
+    //                 priviewDiv[i].style.backgroundImage = choiceStyle;// 게임 진행 preview 화면에 background-image 넣어주기 
+    //                 resultView[i].style.backgroundImage = choiceStyle;// 결과 화면에도 background-image 넣어주기 
+    //             }
+    //         });
+    //     }else{
+    //         // choiceElement가 null인 경우
+    //         console.error("stopSlot() choiceElement not found !");
+    //     }
     }
 
     // 화살표 포지션 초기화, 재시작
     const reStartSlot = () => {
-        persent = 0;
-        resultPersent = 0;
+        setPersent(0);
+        setResultPersent(0);
         if(arrowRef.current){
             arrowRef.current.style.left = `0%`;
         }
-        Arrdirection = 'right';
+        setArrDirection('right');
         moveArr();
-        buttonAct = true;
+        setButtonAct(true);
     }
 
     // 다시하기 - 게임 초기화
@@ -239,7 +247,7 @@ const Game = () => {
     }
 
     const allResetEvent = () => {
-        roundCount = 1;
+        setRoundCount(1);
         priviewDiv.forEach((e, i) => {
             e.style.removeProperty('background-image');
             e.style.display = 'none';
@@ -266,7 +274,7 @@ const Game = () => {
             {/* 게임 화면 */}
             <div ref={gameZoneRef} className="game_zone">
                 <div className="inner">
-                    <div className="round_1">
+                    <div ref={gameRoundRef} className="round_1">
                         <h3 className="tit">규의 슬롯머신</h3>
                         {/* <!--배경색, 머리, 눈, 코, 입, 악세사리--> */}
                         <div className="slot_area">
