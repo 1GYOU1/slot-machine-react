@@ -19,7 +19,7 @@ import btnClsBlackImg from '../img/btn_cls_black.png';
 
         - stop 버튼 클릭 이벤트
             ㄴ 화살표 멈추기 (✔)
-            ㄴ class="round_1" roundCount++ 반영 ()
+            ㄴ class="round_1" roundCount++ 반영 (✔)
 
         - 멈춘 위치에 따른 선택 결과 값(percent 기준) 저장 ()
 
@@ -82,7 +82,6 @@ const Game = () => {
         }
         if(gameZoneRef.current){
             gameZoneRef.current.classList.add('on');
-            // moveArr();
             setButtonAct(true);
         }
     }
@@ -112,6 +111,7 @@ const Game = () => {
     useEffect(() => {
         roundChange();
         console.log('roundCount', roundCount)
+        console.log('resultArr', resultArr)
     }, [roundCount])
 
     const moveArr = () => {
@@ -134,7 +134,7 @@ const Game = () => {
 
     const roundChange = () => {
         if (gameRoundRef.current) {
-            gameRoundRef.current.className = 'round_' + roundCount.toString();
+            gameRoundRef.current.className = `round_${roundCount}`;
         }
     }
 
@@ -212,12 +212,7 @@ const Game = () => {
 
     // 화살표 포지션 초기화, 재시작
     const reStartSlot = () => {
-        setPersent(0);
         setResultPersent(0);
-        if(arrowRef.current){
-            arrowRef.current.style.left = `0%`;
-        }
-        setArrDirection('right');
         moveArr();
         setButtonAct(true);
     }
@@ -229,8 +224,13 @@ const Game = () => {
             resultZoneRef.current.classList.remove('on');
         }
         if(gameZoneRef.current){
-            gameZoneRef.current.classList.remove('on');
+            gameZoneRef.current.classList.add('on');
         }
+        setPersent(0);// 화살표 위치 초기화
+        if(arrowRef.current){
+            arrowRef.current.style.left = `0%`;
+        }
+        setArrDirection('right'); // 화살표 방향 초기화
         reStartSlot();
         allResetEvent();
     }
@@ -253,7 +253,7 @@ const Game = () => {
             e.style.display = 'none';
         })
         if(gameRoundRef.current){
-            gameRoundRef.current.classList.replace('round_5', 'round_1');
+            gameRoundRef.current.className = `round_${roundCount}`;
         }
         resultArr = [];
     }
