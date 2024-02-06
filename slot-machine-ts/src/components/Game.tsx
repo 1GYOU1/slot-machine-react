@@ -72,8 +72,8 @@ const Game = () => {
     const [resultPersent, setResultPersent] = useState(0);// 화살표 결과 위치 값 (%)
     let animationId: number | undefined;// 화살표 애니메이션
 
-    // 화살표 결과
-    let resultArr: number[] = [];
+    // 화살표 결과값 배열로 저장
+    let [resultArr, setResultArr] = useState<number[]>([]);
 
     // 게임 시작
     const gameStartBtnEvent = () => {
@@ -179,17 +179,18 @@ const Game = () => {
         }
 
         // 결과 값 배열로 저장
-        if(resultPersent < 20){
-            resultArr.push(1);
-        }else if(20 <= resultPersent && resultPersent < 40){
-            resultArr.push(2);
-        }else if(40 <= resultPersent && resultPersent < 60){
-            resultArr.push(3);
-        }else if(60 <= resultPersent && resultPersent < 80){
-            resultArr.push(4);
-        }else{
-            resultArr.push(5);
+        if (resultPersent < 20) {
+            setResultArr((prev) => [...prev, 1]);
+        } else if (20 <= resultPersent && resultPersent < 40) {
+            setResultArr((prev) => [...prev, 2]);
+        } else if (40 <= resultPersent && resultPersent < 60) {
+            setResultArr((prev) => [...prev, 3]);
+        } else if (60 <= resultPersent && resultPersent < 80) {
+            setResultArr((prev) => [...prev, 4]);
+        } else {
+            setResultArr((prev) => [...prev, 5]);
         }
+
 
     //     // 선택한 요소의 스타일 가져오기
     //     let choiceElement = document.querySelector(`.game_zone .round_${roundCount} .slot_box li:nth-of-type(${resultArr[roundCount-1]})`);
