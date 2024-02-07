@@ -38,11 +38,11 @@ import btnClsBlackImg from '../img/btn_cls_black.png';
 
         - 처음부터 다시 하기
             ㄴ 버튼 클릭 이벤트 생성 (✔)
-            ㄴ 값 reset ()
+            ㄴ 값 reset (✔)
 
         - 처음 화면으로 돌아가기
             ㄴ 버튼 클릭 이벤트 생성 (✔)
-            ㄴ 값 reset ()
+            ㄴ 값 reset (✔)
 */
 
 const Game = () => {
@@ -112,7 +112,7 @@ const Game = () => {
         roundChange();
         console.log('roundCount', roundCount)
         console.log('resultArr', resultArr)
-    }, [roundCount])
+    }, [roundCount, resultArr])
 
     const moveArr = () => {
         if (buttonAct) {
@@ -192,7 +192,19 @@ const Game = () => {
         }
 
 
-    //     // 선택한 요소의 스타일 가져오기
+        // 선택한 요소의 스타일 가져오기
+        console.log(roundCount, '여긴 선택한 요소의 스타일 가져오기')
+        priviewDiv.forEach((e, i) => {
+            // console.log(e)
+            // console.log(getPriviewElement)
+            if(i == resultArr.length){
+                // console.log(priviewDiv[i])
+                // console.log(getPriviewElement)
+                // let getImage = getComputedStyle(getPriviewElement).backgroundImage;
+                // priviewDiv[i].style.backgroundImage = getImage;
+            }
+        })
+
     //     let choiceElement = document.querySelector(`.game_zone .round_${roundCount} .slot_box li:nth-of-type(${resultArr[roundCount-1]})`);
     //     if (choiceElement) {
     //         let choiceStyle = getComputedStyle(choiceElement).backgroundImage;
