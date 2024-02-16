@@ -53,6 +53,8 @@ const Game = () => {
     const gameZoneRef = useRef<HTMLDivElement>(null);
     const arrowRef = useRef<HTMLDivElement>(null);
     const slotHandleRef = useRef<HTMLButtonElement>(null);
+    const slotList = document.querySelectorAll('.slot_box > li') as NodeListOf<HTMLDivElement>;
+    const slotListArr = [...slotList];
     const priviewDiv = document.querySelectorAll('.game_zone .preview > div') as NodeListOf<HTMLDivElement>;
 
     // result_zone
@@ -74,6 +76,9 @@ const Game = () => {
 
     // 화살표 결과값 배열로 저장
     let [resultArr, setResultArr] = useState<number[]>([]);
+
+    // preview 결과 배경 이미지 배열로 저장
+    let [bgImgArr, setBgImgArr] = useState<string[]>([]);
 
     // 게임 시작
     const gameStartBtnEvent = () => {
@@ -107,12 +112,21 @@ const Game = () => {
         }
     }, [persent, buttonAct, arrDirection]);
 
-    // round class 변경
+    // round class 변경 useState로는 즉시 반영이 안됨 ..
+    // priview backgroundImage 변경
     useEffect(() => {
         roundChange();
-        console.log('roundCount', roundCount)
-        console.log('resultArr', resultArr)
+        return () => {
+            // roundAndBgChange();
+        }
     }, [roundCount, resultArr])
+
+    useEffect(() => {
+        console.log(bgImgArr)
+        // console.log(resultArr)
+        return () => {
+        }
+    }, [bgImgArr])
 
     const moveArr = () => {
         if (buttonAct) {
@@ -133,8 +147,22 @@ const Game = () => {
     };
 
     const roundChange = () => {
+        // round 변경
         if (gameRoundRef.current) {
             gameRoundRef.current.className = `round_${roundCount}`;
+        }
+        console.log(resultArr.length, roundCount-1)
+        if (resultArr.length > 0) { // resultArr의 길이가 roundCount - 1 보다 클 때만 bgImageChange 호출
+            bgImageChange();
+        }
+    }
+
+    // priview bg-image 변경
+    const bgImageChange = () => {
+        if(resultArr.length == roundCount-1){
+            setBgImgArr(prev => [...prev, process.env.PUBLIC_URL + `/image/slot_machine_${roundCount-1}_${resultArr[resultArr.length-1]}.png`]);
+            // priviewDiv[roundCount].style.backgroundImage = bgImgArr[roundCount];
+            // console.log(priviewDiv[roundCount].style.backgroundImage)
         }
     }
 
@@ -147,6 +175,7 @@ const Game = () => {
             if(roundCount < 5){
                 setTimeout(() => {// round_ 클래스 카운트 변경
                     setRoundCount((prev) => prev + 1);
+                    // console.log(roundCount)
 
                     reStartSlot();// 슬롯 다시 시작
                     if(slotHandleRef.current){
@@ -154,6 +183,8 @@ const Game = () => {
                     }
                 }, 1000)
             }else{
+                // 마지막 라운드 priview bg-image 변경
+                // bgImageChange();
                 if(animationId !== undefined){
                     cancelAnimationFrame(animationId);
                 }
@@ -165,7 +196,7 @@ const Game = () => {
                     if(resultZoneRef.current){
                         resultZoneRef.current.classList.add('on'); 
                     }
-                }, 1500);
+                }, 3000);
                 return false;
             }
         }
@@ -190,37 +221,7 @@ const Game = () => {
         } else {
             setResultArr((prev) => [...prev, 5]);
         }
-
-
-        // 선택한 요소의 스타일 가져오기
-        console.log(roundCount, '여긴 선택한 요소의 스타일 가져오기')
-        priviewDiv.forEach((e, i) => {
-            // console.log(e)
-            // console.log(getPriviewElement)
-            if(i == resultArr.length){
-                // console.log(priviewDiv[i])
-                // console.log(getPriviewElement)
-                // let getImage = getComputedStyle(getPriviewElement).backgroundImage;
-                // priviewDiv[i].style.backgroundImage = getImage;
-            }
-        })
-
-    //     let choiceElement = document.querySelector(`.game_zone .round_${roundCount} .slot_box li:nth-of-type(${resultArr[roundCount-1]})`);
-    //     if (choiceElement) {
-    //         let choiceStyle = getComputedStyle(choiceElement).backgroundImage;
-
-    //         // 결과 priview show
-    //         priviewDiv.forEach((e, i)=>{
-    //             if(resultArr.length == i+1){
-    //                 priviewDiv[i].style.display = 'block';
-    //                 priviewDiv[i].style.backgroundImage = choiceStyle;// 게임 진행 preview 화면에 background-image 넣어주기 
-    //                 resultView[i].style.backgroundImage = choiceStyle;// 결과 화면에도 background-image 넣어주기 
-    //             }
-    //         });
-    //     }else{
-    //         // choiceElement가 null인 경우
-    //         console.error("stopSlot() choiceElement not found !");
-    //     }
+        
     }
 
     // 화살표 포지션 초기화, 재시작
@@ -268,7 +269,7 @@ const Game = () => {
         if(gameRoundRef.current){
             gameRoundRef.current.className = `round_${roundCount}`;
         }
-        resultArr = [];
+        setResultArr([]);
     }
 
     return (
@@ -293,11 +294,11 @@ const Game = () => {
                         <div className="slot_area">
                             <img className="slot_mask" src={slotBoxImg} alt="슬롯 머신"/>
                             <ul className="slot_box">
-                                <li><span></span></li>
-                                <li><span></span></li>
-                                <li><span></span></li>
-                                <li><span></span></li>
-                                <li><span></span></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
                             </ul>
                             <button ref={slotHandleRef} className="handle" onClick={stopArrowBtnEvent}>
                                 <img src={handleImg} alt="슬롯 핸들"/>
