@@ -55,7 +55,7 @@ const Game = () => {
     const slotHandleRef = useRef<HTMLButtonElement>(null);
     const slotList = document.querySelectorAll('.slot_box > li') as NodeListOf<HTMLDivElement>;
     const slotListArr = [...slotList];
-    const priviewDiv = document.querySelectorAll('.game_zone .preview > div') as NodeListOf<HTMLDivElement>;
+    const previewDiv = document.querySelectorAll('.game_zone .preview > div') as NodeListOf<HTMLDivElement>;
 
     // result_zone
     const resultZoneRef = useRef<HTMLDivElement>(null);
@@ -113,20 +113,18 @@ const Game = () => {
     }, [persent, buttonAct, arrDirection]);
 
     // round class 변경 useState로는 즉시 반영이 안됨 ..
-    // priview backgroundImage 변경
     useEffect(() => {
         roundChange();
         return () => {
-            // roundAndBgChange();
         }
-    }, [roundCount, resultArr])
+    }, [roundCount])
 
     useEffect(() => {
-        console.log(bgImgArr)
-        // console.log(resultArr)
-        return () => {
+        if (bgImgArr.length > 0 && resultArr.length > 0) {
+            previewDiv[resultArr.length - 1].style.backgroundImage = `url(${bgImgArr[resultArr.length - 1]})`;
+            previewDiv[resultArr.length - 1].style.display = 'block';
         }
-    }, [bgImgArr])
+    }, [bgImgArr, resultArr]);
 
     const moveArr = () => {
         if (buttonAct) {
@@ -151,7 +149,6 @@ const Game = () => {
         if (gameRoundRef.current) {
             gameRoundRef.current.className = `round_${roundCount}`;
         }
-        console.log(resultArr.length, roundCount-1)
         if (resultArr.length > 0) { // resultArr의 길이가 roundCount - 1 보다 클 때만 bgImageChange 호출
             bgImageChange();
         }
@@ -159,12 +156,12 @@ const Game = () => {
 
     // priview bg-image 변경
     const bgImageChange = () => {
-        if(resultArr.length == roundCount-1){
-            setBgImgArr(prev => [...prev, process.env.PUBLIC_URL + `/image/slot_machine_${roundCount-1}_${resultArr[resultArr.length-1]}.png`]);
-            // priviewDiv[roundCount].style.backgroundImage = bgImgArr[roundCount];
-            // console.log(priviewDiv[roundCount].style.backgroundImage)
+        if (resultArr.length > 0) {
+            const lastIndex = resultArr.length - 1;
+            const imageUrl = `${process.env.PUBLIC_URL}/image/slot_item_${resultArr[lastIndex]}_${resultArr.length-1}.png`;
+            setBgImgArr(prevBgImgArr => [...prevBgImgArr, imageUrl]);
         }
-    }
+    };
 
     const stopArrowBtnEvent = () => {
         if(buttonAct){
@@ -262,7 +259,7 @@ const Game = () => {
 
     const allResetEvent = () => {
         setRoundCount(1);
-        priviewDiv.forEach((e, i) => {
+        previewDiv.forEach((e, i) => {
             e.style.removeProperty('background-image');
             e.style.display = 'none';
         })
