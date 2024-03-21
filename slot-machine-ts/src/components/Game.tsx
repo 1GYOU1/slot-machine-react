@@ -60,17 +60,21 @@ const Game = () => {
     // result_zone
     const resultZoneRef = useRef<HTMLDivElement>(null);
 
-    const resultView = document.querySelectorAll('.result_zone .result_view > div') as NodeListOf<HTMLDivElement>;;
+    const resultViewDiv = document.querySelectorAll('.result_zone .result_view > div') as NodeListOf<HTMLDivElement>;;
 
     const gameRoundRef = useRef<HTMLDivElement>(null);
 
-    const [roundCount, setRoundCount] = useState(1);
+    // 라운드 카운트
+    const [roundCount, setRoundCount] = useState(0);
+
+    // 미리보기 이미지 & 결과 페이지 가기 전 카운트
+    const [resultShowCount, setResultShowCount] = useState(0);
 
     // 화살표 초기값
     const [buttonAct, setButtonAct] = useState(false);
     const [arrDirection, setArrDirection] = useState('right');
     const [persent, setPersent] = useState(0);
-    const [speed, setSpeed] = useState(1);
+    const [speed, setSpeed] = useState(10);
     const [resultPersent, setResultPersent] = useState(0);// 화살표 결과 위치 값 (%)
     let animationId: number | undefined;// 화살표 애니메이션
 
@@ -115,14 +119,21 @@ const Game = () => {
     // round class 변경 useState로는 즉시 반영이 안됨 ..
     useEffect(() => {
         roundChange();
-        return () => {
-        }
+        console.log('resultArr',resultArr)
+    }, [roundCount, resultShowCount])
+
+    useEffect(() => {
+        console.log('최종 persent',persent)
     }, [roundCount])
 
     useEffect(() => {
         if (bgImgArr.length > 0 && resultArr.length > 0) {
+            // 미리보기 영역 bg Img style 업데이트
             previewDiv[resultArr.length - 1].style.backgroundImage = `url(${bgImgArr[resultArr.length - 1]})`;
             previewDiv[resultArr.length - 1].style.display = 'block';
+            
+            // 결과 페이지 bg Img style 업데이트
+            resultViewDiv[resultArr.length - 1].style.backgroundImage = `url(${bgImgArr[resultArr.length - 1]})`;
         }
     }, [bgImgArr, resultArr]);
 
@@ -166,22 +177,24 @@ const Game = () => {
     const stopArrowBtnEvent = () => {
         if(buttonAct){
             stopSlot();// 슬롯 멈추기
+            // console.log('끝 persent',persent)
             if(slotHandleRef.current){
                 slotHandleRef.current.classList.add('on');// 모바일 핸들 애니메이션 추가
             }
-            if(roundCount < 5){
+            if(roundCount < 4 && resultShowCount < 5){
                 setTimeout(() => {// round_ 클래스 카운트 변경
                     setRoundCount((prev) => prev + 1);
-                    // console.log(roundCount)
+                    setResultShowCount((prev) => prev + 1);
 
-                    reStartSlot();// 슬롯 다시 시작
+                    // reStartSlot();// 슬롯 다시 시작
                     if(slotHandleRef.current){
                         slotHandleRef.current.classList.remove('on');// 핸들 애니메이션 제거
                     }
                 }, 1000)
             }else{
                 // 마지막 라운드 priview bg-image 변경
-                // bgImageChange();
+                setResultShowCount((prev) => prev + 1);
+
                 if(animationId !== undefined){
                     cancelAnimationFrame(animationId);
                 }
@@ -202,6 +215,7 @@ const Game = () => {
     // 화살표 멈추기
     const stopSlot = () => {
         setButtonAct(false);
+        console.log('최종이랑 같아야하는 percent', persent)
         if(animationId !== undefined){
             cancelAnimationFrame(animationId);
         }
@@ -209,13 +223,13 @@ const Game = () => {
         // 결과 값 배열로 저장
         if (resultPersent < 20) {
             setResultArr((prev) => [...prev, 1]);
-        } else if (20 <= resultPersent && resultPersent < 40) {
+        } else if (resultPersent >= 20 && resultPersent < 40) {
             setResultArr((prev) => [...prev, 2]);
-        } else if (40 <= resultPersent && resultPersent < 60) {
+        } else if (resultPersent >= 40 && resultPersent < 60) {
             setResultArr((prev) => [...prev, 3]);
-        } else if (60 <= resultPersent && resultPersent < 80) {
+        } else if (resultPersent >= 60 && resultPersent < 80) {
             setResultArr((prev) => [...prev, 4]);
-        } else {
+        } else if(resultPersent >= 80){
             setResultArr((prev) => [...prev, 5]);
         }
         
