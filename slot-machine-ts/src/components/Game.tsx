@@ -120,6 +120,11 @@ const Game = () => {
     useEffect(() => {
         roundChange();
         console.log('resultArr',resultArr)
+
+        // resultPersent 갱신 후 결과 값 저장
+        if(roundCount !== 1){
+            stopSlot();
+        }
     }, [roundCount, resultShowCount])
 
     useEffect(() => {
@@ -176,7 +181,13 @@ const Game = () => {
 
     const stopArrowBtnEvent = () => {
         if(buttonAct){
-            stopSlot();// 슬롯 멈추기
+            setButtonAct(false);
+            console.log('최종이랑 같아야하는 percent', persent)
+            if(animationId !== undefined){
+                cancelAnimationFrame(animationId);
+            }
+
+            // stopSlot();// 슬롯 멈추기
             // console.log('끝 persent',persent)
             if(slotHandleRef.current){
                 slotHandleRef.current.classList.add('on');// 모바일 핸들 애니메이션 추가
@@ -214,11 +225,11 @@ const Game = () => {
 
     // 화살표 멈추기
     const stopSlot = () => {
-        setButtonAct(false);
-        console.log('최종이랑 같아야하는 percent', persent)
-        if(animationId !== undefined){
-            cancelAnimationFrame(animationId);
-        }
+        // setButtonAct(false);
+        // console.log('최종이랑 같아야하는 percent', persent)
+        // if(animationId !== undefined){
+        //     cancelAnimationFrame(animationId);
+        // }
 
         // 결과 값 배열로 저장
         if (resultPersent < 20) {
