@@ -169,19 +169,14 @@ const Game = () => {
         if (gameRoundRef.current) {
             gameRoundRef.current.className = `round_${roundCount}`;
         }
-        // if (resultArr.length > 0) { // resultArr의 길이가 roundCount - 1 보다 클 때만 bgImageChange 호출
-            // bgImageChange();
-        // }
     }
 
     // priview bg-image 변경
     const bgImageChange = () => {
-        // if (resultArr.length > 0) {
-            console.log('resultArr.length',resultArr.length)
-            const lastIndex = resultArr.length - 1;
-            const imageUrl = `${process.env.PUBLIC_URL}/image/slot_item_${resultArr[lastIndex]}_${resultShowCount-1}.png`;
-            setBgImgArr(prevBgImgArr => [...prevBgImgArr, imageUrl]);
-        // }
+        console.log('resultArr.length',resultArr.length)
+        const lastIndex = resultArr.length - 1;
+        const imageUrl = `${process.env.PUBLIC_URL}/image/slot_item_${resultArr[lastIndex]}_${resultShowCount-1}.png`;
+        setBgImgArr(prevBgImgArr => [...prevBgImgArr, imageUrl]);
     };
 
     const stopArrowBtnEvent = () => {
@@ -193,9 +188,11 @@ const Game = () => {
                 cancelAnimationFrame(animationId);
             }
 
+            // 모바일 핸들 애니메이션 추가
             if(slotHandleRef.current){
-                slotHandleRef.current.classList.add('on');// 모바일 핸들 애니메이션 추가
+                slotHandleRef.current.classList.add('on');
             }
+
             if(roundCount < 4 && resultShowCount < 5){
                 setTimeout(() => {// round_ 클래스 카운트 변경
                     setRoundCount((prev) => prev + 1);
@@ -240,14 +237,10 @@ const Game = () => {
         } else if(resultPersent >= 80){
             setResultArr((prev) => [...prev, 5]);
         }
-        
-        // 미리보기 이미지 업데이트
-        // bgImageChange();
     }
 
-    // 화살표 포지션 초기화, 재시작
+    // 화살표 재시작
     const reStartSlot = () => {
-        // setResultPersent(0);
         moveArr();
         setButtonAct(true);
     }
@@ -268,6 +261,7 @@ const Game = () => {
         setArrDirection('right'); // 화살표 방향 초기화
         reStartSlot();
         allResetEvent();
+        setResultPersent(0);
     }
 
     // 처음 화면으로
@@ -282,7 +276,8 @@ const Game = () => {
     }
 
     const allResetEvent = () => {
-        setRoundCount(1);
+        setRoundCount(0);
+        setResultShowCount(0);
         previewDiv.forEach((e, i) => {
             e.style.removeProperty('background-image');
             e.style.display = 'none';
@@ -291,6 +286,7 @@ const Game = () => {
             gameRoundRef.current.className = `round_${roundCount}`;
         }
         setResultArr([]);
+        setBgImgArr([]);
     }
 
     return (
