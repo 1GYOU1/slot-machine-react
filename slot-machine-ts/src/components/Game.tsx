@@ -21,9 +21,9 @@ import btnClsBlackImg from '../img/btn_cls_black.png';
             ㄴ 화살표 멈추기 (✔)
             ㄴ class="round_1" roundCount++ 반영 (✔)
 
-        - 멈춘 위치에 따른 선택 결과 값(percent 기준) 저장 ()
+        - 멈춘 위치에 따른 선택 결과 값(percent 기준) 저장 (✔)
 
-        - preview 영역에 저장한 선택 값 노출 ()
+        - preview 영역에 저장한 선택 값 노출 (✔)
 
     ------------------------------------------------
 
@@ -119,17 +119,12 @@ const Game = () => {
     // round class 변경 useState로는 즉시 반영이 안됨 ..
     useEffect(() => {
         roundChange();
-        console.log('resultArr',resultArr)
 
         // resultPersent 갱신 후 결과 값 저장
-        if(roundCount !== 1){
+        if(roundCount !== 0){
             stopSlot();
         }
     }, [roundCount, resultShowCount])
-
-    useEffect(() => {
-        console.log('최종 persent',persent)
-    }, [roundCount])
 
     useEffect(() => {
         if (bgImgArr.length > 0 && resultArr.length > 0) {
@@ -140,7 +135,16 @@ const Game = () => {
             // 결과 페이지 bg Img style 업데이트
             resultViewDiv[resultArr.length - 1].style.backgroundImage = `url(${bgImgArr[resultArr.length - 1]})`;
         }
-    }, [bgImgArr, resultArr]);
+        console.log('resultArr',resultArr)
+        console.log('bgImgArr',bgImgArr)
+    }, [bgImgArr, resultArr, resultShowCount]);
+
+    //bgImgArr update
+    useEffect(() => {
+        if(resultArr.length > 0){
+            bgImageChange();
+        }
+    }, [resultArr])
 
     const moveArr = () => {
         if (buttonAct) {
@@ -165,30 +169,30 @@ const Game = () => {
         if (gameRoundRef.current) {
             gameRoundRef.current.className = `round_${roundCount}`;
         }
-        if (resultArr.length > 0) { // resultArr의 길이가 roundCount - 1 보다 클 때만 bgImageChange 호출
-            bgImageChange();
-        }
+        // if (resultArr.length > 0) { // resultArr의 길이가 roundCount - 1 보다 클 때만 bgImageChange 호출
+            // bgImageChange();
+        // }
     }
 
     // priview bg-image 변경
     const bgImageChange = () => {
-        if (resultArr.length > 0) {
+        // if (resultArr.length > 0) {
+            console.log('resultArr.length',resultArr.length)
             const lastIndex = resultArr.length - 1;
-            const imageUrl = `${process.env.PUBLIC_URL}/image/slot_item_${resultArr[lastIndex]}_${resultArr.length-1}.png`;
+            const imageUrl = `${process.env.PUBLIC_URL}/image/slot_item_${resultArr[lastIndex]}_${resultShowCount-1}.png`;
             setBgImgArr(prevBgImgArr => [...prevBgImgArr, imageUrl]);
-        }
+        // }
     };
 
     const stopArrowBtnEvent = () => {
         if(buttonAct){
+            // 슬롯 클릭시 바로 멈추기
             setButtonAct(false);
             console.log('최종이랑 같아야하는 percent', persent)
             if(animationId !== undefined){
                 cancelAnimationFrame(animationId);
             }
 
-            // stopSlot();// 슬롯 멈추기
-            // console.log('끝 persent',persent)
             if(slotHandleRef.current){
                 slotHandleRef.current.classList.add('on');// 모바일 핸들 애니메이션 추가
             }
@@ -197,7 +201,7 @@ const Game = () => {
                     setRoundCount((prev) => prev + 1);
                     setResultShowCount((prev) => prev + 1);
 
-                    // reStartSlot();// 슬롯 다시 시작
+                    reStartSlot();// 슬롯 다시 시작
                     if(slotHandleRef.current){
                         slotHandleRef.current.classList.remove('on');// 핸들 애니메이션 제거
                     }
@@ -223,15 +227,8 @@ const Game = () => {
         }
     }
 
-    // 화살표 멈추기
+    // 화살표 멈춘 후 결과 값 배열로 저장
     const stopSlot = () => {
-        // setButtonAct(false);
-        // console.log('최종이랑 같아야하는 percent', persent)
-        // if(animationId !== undefined){
-        //     cancelAnimationFrame(animationId);
-        // }
-
-        // 결과 값 배열로 저장
         if (resultPersent < 20) {
             setResultArr((prev) => [...prev, 1]);
         } else if (resultPersent >= 20 && resultPersent < 40) {
@@ -244,11 +241,13 @@ const Game = () => {
             setResultArr((prev) => [...prev, 5]);
         }
         
+        // 미리보기 이미지 업데이트
+        // bgImageChange();
     }
 
     // 화살표 포지션 초기화, 재시작
     const reStartSlot = () => {
-        setResultPersent(0);
+        // setResultPersent(0);
         moveArr();
         setButtonAct(true);
     }
