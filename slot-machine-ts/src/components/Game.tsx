@@ -6,6 +6,9 @@ import previewBoxImg from '../img/preview_box.png';
 import resultCurtainImg from '../img/result_curtain.png';
 import btnClsBlackImg from '../img/btn_cls_black.png';
 
+// 캡처 라이브러리
+import html2canvas from 'html2canvas';
+
 /*
     1. 시작 화면 
         - start 버튼 클릭 시 게임 화면 진입 (✔)
@@ -34,7 +37,7 @@ import btnClsBlackImg from '../img/btn_cls_black.png';
         - 결과 노출 (✔)
 
         - 결과 저장 하기
-            ㄴ 원하는 부분만 캡처 후 저장 ()
+            ㄴ 원하는 부분만 캡처 후 저장 (✔)
 
         - 처음부터 다시 하기
             ㄴ 버튼 클릭 이벤트 생성 (✔)
@@ -65,17 +68,17 @@ const Game = () => {
     const gameRoundRef = useRef<HTMLDivElement>(null);
 
     // 라운드 카운트
-    const [roundCount, setRoundCount] = useState(0);
+    const [roundCount, setRoundCount] = useState<number>(0);
 
     // 미리보기 이미지 & 결과 페이지 가기 전 카운트
-    const [resultShowCount, setResultShowCount] = useState(0);
+    const [resultShowCount, setResultShowCount] = useState<number>(0);
 
     // 화살표 초기값
-    const [buttonAct, setButtonAct] = useState(false);
-    const [arrDirection, setArrDirection] = useState('right');
-    const [persent, setPersent] = useState(0);
-    const [speed, setSpeed] = useState(10);
-    const [resultPersent, setResultPersent] = useState(0);// 화살표 결과 위치 값 (%)
+    const [buttonAct, setButtonAct] = useState<boolean>(false);
+    const [arrDirection, setArrDirection] = useState<string>('right');
+    const [persent, setPersent] = useState<number>(0);
+    const [speed, setSpeed] = useState<number>(10);
+    const [resultPersent, setResultPersent] = useState<number>(0);// 화살표 결과 위치 값 (%)
     let animationId: number | undefined;// 화살표 애니메이션
 
     // 화살표 결과값 배열로 저장
@@ -139,13 +142,13 @@ const Game = () => {
         console.log('bgImgArr',bgImgArr)
     }, [bgImgArr, resultArr, resultShowCount]);
 
-    //bgImgArr update
+    // bgImgArr update
     useEffect(() => {
         if(resultArr.length > 0){
             bgImageChange();
         }
     }, [resultArr])
-
+    
     const moveArr = () => {
         if (buttonAct) {
             if (arrDirection === 'right') {
@@ -275,6 +278,24 @@ const Game = () => {
         allResetEvent();
     }
 
+    // 캡처 기능
+    const handleDownload = async () => {// 비동기
+        const elementToCapture = document.getElementById('capture');// 캡처할 대상
+        if (elementToCapture) {
+            html2canvas(elementToCapture).then(canvas => {// 라이브러리 사용하여 영역 캡처
+            // 캡처 후 실행할 작업
+            const image = canvas.toDataURL('image/png').replace('image/png', 'image/octet-stream');
+            const link = document.createElement('a');
+            link.download = 'screenshot.png';
+            link.href = image;
+            link.click();
+            });
+        } else {
+            console.error('Element to capture not found');
+        }
+    };
+
+    // 초기화 기능
     const allResetEvent = () => {
         setRoundCount(0);
         setResultShowCount(0);
@@ -307,7 +328,7 @@ const Game = () => {
                 <div className="inner">
                     <div ref={gameRoundRef} className="round_1">
                         <h3 className="tit">규의 슬롯머신</h3>
-                        {/* <!--배경색, 머리, 눈, 코, 입, 악세사리--> */}
+                        {/* <!--배경색, 머리, 눈, 코, 입--> */}
                         <div className="slot_area">
                             <img className="slot_mask" src={slotBoxImg} alt="슬롯 머신"/>
                             <ul className="slot_box">
@@ -351,7 +372,7 @@ const Game = () => {
                         <div className="result_5"></div>
                     </div>
                     <div className="btn_area">
-                        <button className="custom_btn capture_btn">저장하기</button>
+                        <button className="custom_btn capture_btn" onClick={handleDownload}>저장하기</button>
                         <button className="custom_btn reset_btn" onClick={resetBtnEvent}>다시하기</button>
                         <button className="custom_btn start_show_btn" onClick={startShowEvent}>처음으로</button>
                     </div>
