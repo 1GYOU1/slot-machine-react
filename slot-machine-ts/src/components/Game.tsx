@@ -56,8 +56,6 @@ const Game = () => {
     const gameZoneRef = useRef<HTMLDivElement>(null);
     const arrowRef = useRef<HTMLDivElement>(null);
     const slotHandleRef = useRef<HTMLButtonElement>(null);
-    const slotList = document.querySelectorAll('.slot_box > li') as NodeListOf<HTMLDivElement>;
-    const slotListArr = [...slotList];
     const previewDiv = document.querySelectorAll('.game_zone .preview > div') as NodeListOf<HTMLDivElement>;
 
     // result_zone
